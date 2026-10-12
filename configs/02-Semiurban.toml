@@ -1,0 +1,36 @@
+scenario = "02-Semiurban"
+state_file = "{split}.n406.state.gz"
+
+# Same detector, rules and fit settings as 01-Basic; nothing tuned for this grid.
+[detector]
+alpha = 0.001
+align_s = 2.0
+floor_percentile = 1
+rho_quantile = 0.999
+
+[rules]
+command_window_s = 30
+update_gap_s = 30
+
+# Only the voltage law passes the gate on this grid.
+[laws]
+end_V = "bus_V"
+
+[fit]
+stride = 10
+holdout = 0.2
+niterations = 400
+timeout_minutes = 30
+max_complexity = 15
+populations = 20
+parsimony = 0.01
+procs = 4
+seed = 42
+gate_s = 1.42
+gate_g = 5.98
+exact_rel = 0.001
+
+[expected]
+laws_sha256 = "da08ebf6e9ef74a0a865ad8846ca78235da63c2188e4b6b7fecea4cb889bf2ff"
+command_sha256 = "d84df696f1b2add347341f488528241e29f6436786253d9fdd9943925668d879"
+update_sha256 = "5b6d2ba2d9741a82ccf1cbabac5784db51e63b9b1c76c22aca903c2a62b65d61"

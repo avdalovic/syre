@@ -1,0 +1,40 @@
+scenario = "01-Basic"
+state_file = "{split}.n302.state.gz"
+
+[detector]
+alpha = 0.001           # conformal level of the one alarm threshold
+align_s = 2.0           # a law is checked only when all its inputs arrived within 2 s
+floor_percentile = 1    # lower bound on the size M, per law type (training)
+rho_quantile = 0.999    # residual scale rho, per law type (training)
+
+[rules]
+command_window_s = 30   # a reported state change needs a command in the 30 s before it
+update_gap_s = 30       # a measurement must be refreshed at least every 30 s
+
+# Frozen laws, learned on the training split by `syre fit` (PySR + gate, simplest passing law per type).
+[laws]
+bus_P = "S_load_P - (S_gen_P - S_storage_P)"
+bus_Q = "-S_gen_Q + S_load_Q"
+end_P = "-S_line_P + (S_trafo_P + bus_P)*(-0.99966526)"
+end_Q = "-S_load_Q - (S_line_Q + S_trafo_Q) + 1.4435556"
+end_V = "bus_V"
+
+[fit]
+stride = 10             # every 10th aligned training second
+holdout = 0.2
+niterations = 400
+timeout_minutes = 30
+max_complexity = 15
+populations = 20
+parsimony = 0.01
+procs = 4
+seed = 42
+gate_s = 1.42           # holdout CUSUM: threshold = s * max training CUSUM
+gate_g = 5.98
+exact_rel = 0.001       # median error <= 0.1% of the largest term, at every bus or line end
+
+# Alarm arrays of the paper (sha256 of the int8 per-second alarm).
+[expected]
+laws_sha256 = "9904ef337a2942e7084d37cac02d3470719c6cbd4ce1dd80611b517a135178c6"
+command_sha256 = "f27dfea9f85211df192dee45b96ac895d8451aa6e857d817645b6d6344526bdd"
+update_sha256 = "8f5412d8859f4badd95526d49178a75266e1a11e79d4b0cf719ccc7a2e47e633"

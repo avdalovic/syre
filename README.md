@@ -1,19 +1,22 @@
 # SyRe
 
-Code for **Follow the Power: Symbolic and Readable Intrusion Detection for Reconfigurable Power Networks**.
+> **Physical laws that hold at every bus, learned as readable equations and evaluated on the grid's
+> current topology, detect manipulated telemetry and show where it occurs.**
 
-Power must balance at every bus. SyRe learns that fact from normal operation, as short equations
-that a grid operator can read. If someone tampers with the telemetry, an equation stops holding,
-and the bus where it breaks shows where to look.
+Code for **Follow the Power: Symbolic and Readable Intrusion Detection for Reconfigurable Power Networks**.
 
 ![SyRe pipeline](docs/pipeline.png)
 
-The grid's measurements arrive over IEC 104 (0, 1). At every second, SyRe builds a graph of the grid
-as it is wired right now. Open switches drop their lines, and each bus sums up what is connected to it (2).
-Offline, symbolic regression finds the simplest exact law for each kind of quantity. It finds the power
-balances and "a line end sees its bus voltage" (3). Online, every law is checked at every bus and line end.
-An alarm goes off when one breaks by more than anything seen in training, or when one of two rules on the
-control-center log fires. The broken law tells you where the attack is (4).
+SyRe monitors the IEC 60870-5-104 telemetry that the control center receives from the grid (0, 1).
+At every second, it builds a dynamic graph from the reported switch and connection states and computes,
+for each bus and line end, the sums over its connected neighbours (2). Offline, symbolic regression
+learns one law per target type from benign training data. A gate keeps only laws that are exact at
+every bus, and the simplest of them is selected, which yields the power balances and the equality of
+line-end and bus voltage (3). Online, every instance of every law is evaluated each second. Its residual
+is normalized by the magnitude of the law's terms and a per-type scale. An alarm is raised when the
+largest normalized residual exceeds a conformal threshold calibrated on training data, or when one of two
+control-center rules fires: a state change without a command, or a missing periodic update (4). The
+instance with the largest residual localizes the attack, as in the Drift Off attack on the loads at bus 14 (5).
 
 ## Results
 
